@@ -21,16 +21,20 @@ android {
     }
 
     signingConfigs {
-        // مقادیر: gradle.properties محلی یا متغیرهای محیطی (برای GitHub Actions)
-        // RELEASE_STORE_FILE, RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_KEY_PASSWORD
-        val storeFilePath = (findProperty("RELEASE_STORE_FILE") as String?)
-            ?: System.getenv("RELEASE_STORE_FILE")
-        val storePass = (findProperty("RELEASE_STORE_PASSWORD") as String?)
-            ?: System.getenv("RELEASE_STORE_PASSWORD")
-        val alias = (findProperty("RELEASE_KEY_ALIAS") as String?)
-            ?: System.getenv("RELEASE_KEY_ALIAS")
-        val keyPass = (findProperty("RELEASE_KEY_PASSWORD") as String?)
-            ?: System.getenv("RELEASE_KEY_PASSWORD")
+        // مقادیر: keystore.properties محلی، یا متغیرهای محیطی (GitHub Actions)
+        val keystoreProps = java.util.Properties()
+        val keystoreFile = rootProject.file("keystore.properties")
+        if (keystoreFile.exists()) {
+            keystoreFile.inputStream().use { keystoreProps.load(it) }
+        }
+        fun signingValue(name: String): String? =
+            keystoreProps.getProperty(name)?.takeIf { it.isNotBlank() }
+                ?: (findProperty(name) as String?)
+                ?: System.getenv(name)
+        val storeFilePath = signingValue("RELEASE_STORE_FILE")
+        val storePass = signingValue("RELEASE_STORE_PASSWORD")
+        val alias = signingValue("RELEASE_KEY_ALIAS")
+        val keyPass = signingValue("RELEASE_KEY_PASSWORD")
         if (!storeFilePath.isNullOrBlank() &&
             !storePass.isNullOrBlank() &&
             !alias.isNullOrBlank() &&

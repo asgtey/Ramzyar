@@ -16,7 +16,7 @@
 # --- فایل‌های محرمانه: هرگز کامیت نشوند ---
 *.jks
 *.keystore
-gradle.properties
+keystore.properties
 
 # --- فایل‌های محلی/موقتی ---
 *.log
