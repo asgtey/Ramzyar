@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -22,7 +24,7 @@ android {
 
     signingConfigs {
         // مقادیر: keystore.properties محلی، یا متغیرهای محیطی (GitHub Actions)
-        val keystoreProps = java.util.Properties()
+        val keystoreProps = Properties()
         val keystoreFile = rootProject.file("keystore.properties")
         if (keystoreFile.exists()) {
             keystoreFile.inputStream().use { keystoreProps.load(it) }
