@@ -7,10 +7,18 @@
         android:name="android.permission.RECEIVE_SMS"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- Permission برای خواندن فرستندگان پیامک (اختیاری؛ فقط برای انتخاب در لیست‌ها) -->
+    <uses-permission
+        android:name="android.permission.READ_SMS"
+        tools:ignore="ProtectedPermissions" />
+
     <!-- Permission مربوط به نمایش روی سایر برنامه‌ها (Overlay) -->
     <uses-permission
         android:name="android.permission.SYSTEM_ALERT_WINDOW"
         tools:ignore="ProtectedPermissions" />
+
+    <!-- Permission برای لرزش هنگام دریافت رمز -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -46,6 +54,16 @@
         <service
             android:name=".overlay.SmsOverlayService"
             android:exported="false" />
+
+        <!-- Service برای بستن خودکار اعلان پیامکِ حاوی رمز (نیازمند دسترسی کاربر) -->
+        <service
+            android:name=".notify.OtpNotificationListener"
+            android:exported="false"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

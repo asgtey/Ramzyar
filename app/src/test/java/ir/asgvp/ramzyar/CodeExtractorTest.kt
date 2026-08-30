@@ -2,6 +2,7 @@ package ir.asgvp.ramzyar
 
 import ir.asgvp.ramzyar.sms.CodeExtractor
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -68,5 +69,55 @@ class CodeExtractorTest {
         val message = "رسید 11111 برای خرید\nرمز 22222 پایان پیامک"
         val result = CodeExtractor.extractSmartWithLabel(message)
         assertEquals("22222", result?.code)
+    }
+
+    // ---------- قابلیت‌های جدید ----------
+
+    @Test
+    fun `ارقام فارسی به انگلیسی تبدیل میشود`() {
+        val result = CodeExtractor.extractSmartWithLabel("بانک ملت\nرمز پویا: ۴۸۳۹۲۰")
+        assertEquals("483920", result?.code)
+    }
+
+    @Test
+    fun `ارقام عربی هم پشتیبانی میشوند`() {
+        val result = CodeExtractor.extractSmartWithLabel("كود التحقق ٤٥٦٧")
+        assertNull(result) // کلمه «کد تایید» فارسی نیست، پس بدون کلمه کلیدی رد می‌شود
+
+        val persianMsg = "رمز: ٥٥١٢٣"
+        assertEquals("55123", CodeExtractor.extractSmartWithLabel(persianMsg)?.code)
+    }
+
+    @Test
+    fun `کلمه کلیدی دلخواه کاربر شناسایی میشود`() {
+        val message = "Your passcode: 771234"
+        assertNull(CodeExtractor.extractSmartWithLabel(message))
+
+        val result = CodeExtractor.extractSmartWithLabel(
+            message,
+            customKeywords = listOf("passcode")
+        )
+        assertEquals("771234", result?.code)
+        assertEquals("passcode", result?.label)
+    }
+
+    @Test
+    fun `کلمات لیست سیاه پیامک را کاملا رد میکند`() {
+        val message = "قرعه‌کشی! رمز 111222 برای دریافت جایزه"
+        assertNotNull(CodeExtractor.extractSmartWithLabel(message))
+
+        val blocked = CodeExtractor.extractSmartWithLabel(
+            message,
+            blacklistWords = listOf("قرعه", "جایزه")
+        )
+        assertNull(blocked)
+    }
+
+    @Test
+    fun `آخرین کلمه رمز در پیامک چندبخشی ملاک است`() {
+        // قبلاً فقط اولین وقوع «رمز» دیده می‌شد و عدد قدیمی انتخاب می‌شد
+        val message = "رمز قبلی 999999 باطل شد. رمز جدید شما 123456"
+        val result = CodeExtractor.extractSmartWithLabel(message)
+        assertEquals("123456", result?.code)
     }
 }

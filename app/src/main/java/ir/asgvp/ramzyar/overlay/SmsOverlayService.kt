@@ -1,6 +1,8 @@
 package ir.asgvp.ramzyar.overlay
 
 import android.app.Service
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -135,12 +137,12 @@ class SmsOverlayService : Service() {
 
         overlayLayoutParams = params
 
-        // نوار کم‌عرض: سه بخش در یک ردیف — رنگ مطابق بک‌گراند اپ
+        // نوار کم‌عرض: سه بخش در یک ردیف — رنگ مطابق تم جدید رمزیار
         val context = this
         val isDark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        val backgroundColor = if (isDark) 0xFF232A37.toInt() else 0xFFF4FFF9.toInt()
-        val closeSideColor = if (isDark) 0xFF2E3542.toInt() else 0xFFC8E6D4.toInt()
-        val textColor = if (isDark) 0xFFE5E7EB.toInt() else 0xFF1F2937.toInt()
+        val backgroundColor = if (isDark) 0xFF151D31.toInt() else 0xFFFFFFFF.toInt()
+        val closeSideColor = if (isDark) 0xFF26304E.toInt() else 0xFFE9E3FC.toInt()
+        val textColor = if (isDark) 0xFFE7EEF9.toInt() else 0xFF141826.toInt()
         val textColorSecondary = if (isDark) 0xB3E5E7EB.toInt() else 0xB31F2937.toInt()
         val dividerColor = if (isDark) 0x33FFFFFF.toInt() else 0x33000000.toInt()
         val borderColor = if (isDark) 0x28FFFFFF.toInt() else 0x18000000.toInt()
@@ -247,7 +249,7 @@ class SmsOverlayService : Service() {
             }
         )
 
-        // جابجایی نوار با کشیدن؛ بستن فقط با یک ضربه‌ی کامل (بدون کشیدن) در ۲۵٪ سمت چپ
+        // کشیدن = جابجایی؛ ضربه‌ی کامل چپ = بستن؛ ضربه‌ی کامل وسط = کپی دوباره رمز
         val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
         var touchDownViewX = 0f
         var touchDownViewY = 0f
@@ -271,13 +273,36 @@ class SmsOverlayService : Service() {
                     true
                 }
                 MotionEvent.ACTION_UP -> {
-                    val closeZoneWidth = view.width * 0.25f
                     val isTap = abs(event.x - touchDownViewX) <= touchSlop &&
                         abs(event.y - touchDownViewY) <= touchSlop
-                    if (isTap && event.x < closeZoneWidth) {
-                        removeOverlay()
-                        stopSelf()
-                        return@setOnTouchListener true
+                    if (isTap) {
+                        val w = view.width
+                        when {
+                            // ضربه در چپ (۲۵٪) = بستن نوار
+                            event.x < w * 0.25f -> {
+                                removeOverlay()
+                                stopSelf()
+                                return@setOnTouchListener true
+                            }
+                            // ضربه در وسط = کپی دوباره رمز همراه بازخورد رنگی
+                            event.x < w * 0.75f -> {
+                                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE)
+                                    as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("sms_code", text))
+                                codeView.setTextColor(0xFF22C55E.toInt())
+                                codeView.postDelayed({
+                                    codeView.setTextColor(textColor)
+                                }, 700)
+                                serviceScope.launch {
+                                    SmsSettingsRepository.saveOverlayPosition(
+                                        this@SmsOverlayService,
+                                        layoutParams.x,
+                                        layoutParams.y
+                                    )
+                                }
+                                return@setOnTouchListener true
+                            }
+                        }
                     }
                     serviceScope.launch {
                         SmsSettingsRepository.saveOverlayPosition(

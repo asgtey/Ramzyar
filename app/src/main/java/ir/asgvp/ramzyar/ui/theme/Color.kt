@@ -2,10 +2,26 @@ package ir.asgvp.ramzyar.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// ---------- پالت اصلی رمزیار ----------
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// سبز خانواده زمردی
+val Emerald = Color(0xFF10B981)
+val EmeraldDeep = Color(0xFF047857)
+val TealDeep = Color(0xFF0D9488)
+
+// بنفش و آبی
+val Violet = Color(0xFF8B5CF6)
+val VioletSoft = Color(0xFFA78BFA)
+val SkyBlue = Color(0xFF38BDF8)
+
+// رنگ‌های تاکیدی
+val Amber = Color(0xFFF59E0B)
+val AmberDeep = Color(0xFFB45309)
+val Rose = Color(0xFFF43F5E)
+val Success = Color(0xFF16A34A)
+
+// سطوح روشن و تیره
+val MintBg = Color(0xFFF1FAF5)
+val InkOnMint = Color(0xFF10231C)
+val NavyInk = Color(0xFF0A101F)
+val InkOnNavy = Color(0xFFE7EEF9)
