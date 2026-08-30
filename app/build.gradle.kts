@@ -21,13 +21,28 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            // مقادیر واقعی را در gradle.properties (سطح ریشه پروژه) تنظیم کن:
-            // RELEASE_STORE_FILE, RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_KEY_PASSWORD
-            storeFile = file(project.property("RELEASE_STORE_FILE") as String)
-            storePassword = project.property("RELEASE_STORE_PASSWORD") as String
-            keyAlias = project.property("RELEASE_KEY_ALIAS") as String
-            keyPassword = project.property("RELEASE_KEY_PASSWORD") as String
+        // مقادیر: gradle.properties محلی یا متغیرهای محیطی (برای GitHub Actions)
+        // RELEASE_STORE_FILE, RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_KEY_PASSWORD
+        val storeFilePath = (findProperty("RELEASE_STORE_FILE") as String?)
+            ?: System.getenv("RELEASE_STORE_FILE")
+        val storePass = (findProperty("RELEASE_STORE_PASSWORD") as String?)
+            ?: System.getenv("RELEASE_STORE_PASSWORD")
+        val alias = (findProperty("RELEASE_KEY_ALIAS") as String?)
+            ?: System.getenv("RELEASE_KEY_ALIAS")
+        val keyPass = (findProperty("RELEASE_KEY_PASSWORD") as String?)
+            ?: System.getenv("RELEASE_KEY_PASSWORD")
+        if (!storeFilePath.isNullOrBlank() &&
+            !storePass.isNullOrBlank() &&
+            !alias.isNullOrBlank() &&
+            !keyPass.isNullOrBlank()
+        ) {
+            create("release") {
+                val fromModule = file(storeFilePath)
+                storeFile = if (fromModule.exists()) fromModule else rootProject.file(storeFilePath)
+                storePassword = storePass
+                keyAlias = alias
+                keyPassword = keyPass
+            }
         }
     }
 
@@ -38,7 +53,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            val releaseSigning = signingConfigs.findByName("release")
+            if (releaseSigning != null) {
+                signingConfig = releaseSigning
+            }
         }
     }
     // فقط خروجی مخصوص معماری arm64-v8a بساز
