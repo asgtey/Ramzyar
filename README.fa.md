@@ -10,6 +10,7 @@
 [![Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![No network permission](https://img.shields.io/badge/network-NONE-success)](#حریم-خصوصی)
 [![Release APK](https://github.com/asgtey/Ramzyar/actions/workflows/release.yml/badge.svg)](https://github.com/asgtey/Ramzyar/actions/workflows/release.yml)
+[![CI](https://github.com/asgtey/Ramzyar/actions/workflows/ci.yml/badge.svg)](https://github.com/asgtey/Ramzyar/actions/workflows/ci.yml)
 
 <!--
   اسکرین‌شات‌های واقعی را اینجا اضافه کنید:
